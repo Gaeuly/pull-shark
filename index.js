@@ -3,7 +3,7 @@ const { Buffer } = require("buffer");
 
 const TOKEN = process.env.GITHUB_TOKEN;
 const OWNER = "Gaeuly";
-const REPO = "pull-request";
+const REPO = "autopull-github";
 
 const octokit = new Octokit({ auth: TOKEN });
 
