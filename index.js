@@ -1,86 +1,30 @@
-const { Octokit } = require("@octokit/rest");
-const { Buffer } = require("buffer");
+// Import konfigurasi dari file JSON
+const config = require('./config.json');
 
-const TOKEN = process.env.GITHUB_TOKEN;
-const OWNER = "Gaeuly";
-const REPO = "autopull-github";
+// Import fungsi-fungsi bot dari folder src
+const { runPullSharkCycle } = require('./src/pullshark.js');
+const { runGalaxyBrainCycle } = require('./src/galaxybrain.js');
 
-const octokit = new Octokit({ auth: TOKEN });
+// --- PENJADWALAN ---
+console.log("🚀 Bot Gabungan Dimulai dengan Struktur Baru!");
 
-async function main() {
-  try {
-    const timestamp = Date.now();
-    const newBranchName = `automated-branch-${timestamp}`;
-    const filePath = "README.md";
+// --- Bot Pull Shark ---
+const JEDA_PULL_SHARK = 60 * 60 * 1000; // Setiap 1 jam
+console.log(`🦈 Bot Pull Shark akan berjalan setiap ${JEDA_PULL_SHARK / 60 / 1000} menit.`);
+// Jalankan siklus pertama Pull Shark segera
+runPullSharkCycle(config.pullshark); 
+// Atur jadwal berulang untuk Pull Shark
+setInterval(() => runPullSharkCycle(config.pullshark), JEDA_PULL_SHARK);
 
-    console.log("1. Mengambil info branch 'main'...");
-    const mainBranch = await octokit.rest.repos.getBranch({
-      owner: OWNER,
-      repo: REPO,
-      branch: "main",
-    });
-    const mainSha = mainBranch.data.commit.sha;
+// --- Bot Galaxy Brain ---
+const JEDA_GALAXY_BRAIN = 30 * 60 * 1000; // Setiap 30 menit
+const JEDA_AWAL_GALAXY_BRAIN = 1 * 60 * 1000; // Jeda 1 menit saat startup
+console.log(`🧠 Bot Galaxy Brain akan berjalan setiap ${JEDA_GALAXY_BRAIN / 60 / 1000} menit, setelah jeda awal ${JEDA_AWAL_GALAXY_BRAIN / 1000} detik.`);
 
-    console.log(`2. Membuat branch baru: ${newBranchName}...`);
-    await octokit.rest.git.createRef({
-      owner: OWNER,
-      repo: REPO,
-      ref: `refs/heads/${newBranchName}`,
-      sha: mainSha,
-    });
-
-    console.log(`3. Mengambil konten file: ${filePath}...`);
-    const fileContent = await octokit.rest.repos.getContent({
-      owner: OWNER,
-      repo: REPO,
-      path: filePath,
-      ref: newBranchName,
-    });
-
-    console.log("4. Mengupdate file untuk membuat commit...");
-    const oldContent = Buffer.from(fileContent.data.content, "base64").toString("utf-8");
-    const newContent = oldContent + `\nUpdate otomatis pada ${new Date().toISOString()}`;
-    await octokit.rest.repos.createOrUpdateFileContents({
-      owner: OWNER,
-      repo: REPO,
-      path: filePath,
-      message: `Commit otomatis dari bot Node.js`,
-      content: Buffer.from(newContent).toString("base64"),
-      sha: fileContent.data.sha,
-      branch: newBranchName,
-    });
-
-    console.log("5. Membuat Pull Request...");
-    const pullRequest = await octokit.rest.pulls.create({
-      owner: OWNER,
-      repo: REPO,
-      title: `PR Otomatis ${timestamp}`,
-      head: newBranchName,
-      base: "main",
-      body: "PR ini dibuat secara otomatis oleh script Node.js.",
-    });
-
-    console.log("Menunggu 5 detik sebelum merge...");
-    await new Promise(resolve => setTimeout(resolve, 5000));
-
-    console.log("6. Me-merge Pull Request...");
-    await octokit.rest.pulls.merge({
-      owner: OWNER,
-      repo: REPO,
-      pull_number: pullRequest.data.number,
-    });
-
-    console.log(`7. Menghapus branch: ${newBranchName}...`);
-    await octokit.rest.git.deleteRef({
-      owner: OWNER,
-      repo: REPO,
-      ref: `heads/${newBranchName}`,
-    });
-
-    console.log("\n✅ Siklus selesai! Satu Pull Shark berhasil didapatkan.");
-  } catch (error) {
-    console.error("❌ Terjadi error:", error.message);
-  }
-}
-
-main();
+// Beri jeda 1 menit sebelum menjalankan siklus pertama Galaxy Brain
+setTimeout(() => {
+    // Jalankan siklus pertama Galaxy Brain setelah jeda
+    runGalaxyBrainCycle(config.galaxybrain); 
+    // Atur jadwal berulang untuk Galaxy Brain
+    setInterval(() => runGalaxyBrainCycle(config.galaxybrain), JEDA_GALAXY_BRAIN);
+}, JEDA_AWAL_GALAXY_BRAIN);

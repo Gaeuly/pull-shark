@@ -1,0 +1,13 @@
+{
+  "pullshark": {
+    "token": "",
+    "owner": "Gaeuly",
+    "repo": "autopull-github"
+  },
+  "galaxybrain": {
+    "token_a": "",
+    "token_b": "",
+    "owner": "Gaeuly",
+    "repo": "galaxy-brain"
+  }
+}
