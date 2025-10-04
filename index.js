@@ -1,30 +1,31 @@
-// Import konfigurasi dari file JSON
 const config = require('./config.json');
-
-// Import fungsi-fungsi bot dari folder src
 const { runPullSharkCycle } = require('./src/pullshark.js');
-const { runGalaxyBrainCycle } = require('./src/galaxybrain.js');
+const { runPairCycle } = require('./src/pair.js');
 
-// --- PENJADWALAN ---
-console.log("🚀 Bot Gabungan Dimulai dengan Struktur Baru!");
+function getRandomDelay(minMinutes, maxMinutes) {
+  const minMs = minMinutes * 60 * 1000;
+  const maxMs = maxMinutes * 60 * 1000;
+  return Math.floor(Math.random() * (maxMs - minMs + 1) + minMs);
+}
 
-// --- Bot Pull Shark ---
-const JEDA_PULL_SHARK = 60 * 60 * 1000; // Setiap 1 jam
-console.log(`🦈 Bot Pull Shark akan berjalan setiap ${JEDA_PULL_SHARK / 60 / 1000} menit.`);
-// Jalankan siklus pertama Pull Shark segera
-runPullSharkCycle(config.pullshark); 
-// Atur jadwal berulang untuk Pull Shark
-setInterval(() => runPullSharkCycle(config.pullshark), JEDA_PULL_SHARK);
+async function scheduleNextRun(botFunction, config, botName, minMinutes, maxMinutes) {
+  await botFunction(config);
 
-// --- Bot Galaxy Brain ---
-const JEDA_GALAXY_BRAIN = 30 * 60 * 1000; // Setiap 30 menit
-const JEDA_AWAL_GALAXY_BRAIN = 1 * 60 * 1000; // Jeda 1 menit saat startup
-console.log(`🧠 Bot Galaxy Brain akan berjalan setiap ${JEDA_GALAXY_BRAIN / 60 / 1000} menit, setelah jeda awal ${JEDA_AWAL_GALAXY_BRAIN / 1000} detik.`);
+  const nextDelay = getRandomDelay(minMinutes, maxMinutes);
+  const nextRunTime = new Date(Date.now() + nextDelay);
+  
+  console.log(`-> ✅ ${botName} finished. Next execution scheduled at ${nextRunTime.toLocaleTimeString('en-US')} (about ${(nextDelay / 60000).toFixed(1)} minutes from now).`);
+  
+  setTimeout(() => scheduleNextRun(botFunction, config, botName, minMinutes, maxMinutes), nextDelay);
+}
 
-// Beri jeda 1 menit sebelum menjalankan siklus pertama Galaxy Brain
+console.log("🚀 Combined Bot Started with Random Schedule!");
+
+console.log("🦈 Starting first Pull Shark cycle...");
+scheduleNextRun(runPullSharkCycle, config.pullshark, 'Pull Shark', 30, 35);
+
+console.log("🧑‍🤝‍🧑 Waiting 1 minute before starting first Pair Extraordinaire cycle...");
 setTimeout(() => {
-    // Jalankan siklus pertama Galaxy Brain setelah jeda
-    runGalaxyBrainCycle(config.galaxybrain); 
-    // Atur jadwal berulang untuk Galaxy Brain
-    setInterval(() => runGalaxyBrainCycle(config.galaxybrain), JEDA_GALAXY_BRAIN);
-}, JEDA_AWAL_GALAXY_BRAIN);
+  console.log("🧑‍🤝‍🧑 Starting first Pair Extraordinaire cycle...");
+  scheduleNextRun(runPairCycle, config.pair_extraordinaire, 'Pair Extraordinaire', 60, 70);
+}, 1 * 60 * 1000);

@@ -1,13 +1,32 @@
 {
   "pullshark": {
-    "token": "",
-    "owner": "Gaeuly",
-    "repo": "autopull-github"
+    "token": "", //TOKEN GITHUB FOR PULL SHARK
+    "owner": "", // USERNAME OWNER
+    "repo": "" // REPO FOR PULL-SHARK
   },
-  "galaxybrain": {
-    "token_a": "",
-    "token_b": "",
-    "owner": "Gaeuly",
-    "repo": "galaxy-brain"
+  "pair_extraordinaire": {
+    "token_a": "", // TOKEN GITHUB OWNER ACCOUNT A
+    "owner_repo": "", // USERNAME OWNER
+    "repo_name": "", // REPO FOR AUTO PAIR
+    "coauthor_name": "", // NAME CO-AUTHOR
+    "coauthor_email_noreply": "", // NOREPLY EMAIL CO-AUTHOR
+    
+    "collaborators": [
+      {
+        "name": "", // USERNAME ACCOUNT B
+        "email_noreply": "", // NO REPLY EMAIL 
+        "token_classic": "" // TOKEN GITHUB ACCOUNT B
+      },
+      {
+        "name": "", // USERNAME ACCOUNT C
+        "email_noreply": "", // NO REPLY EMAIL 
+        "token_classic": "" // TOKEN GITHUB ACCOUNT C
+      },
+      {
+        "name": "", // USERNAME ACCOUNT D
+        "email_noreply": "", // NO REPLY EMAIL 
+        "token_classic": "" // TOKEN GITHUB ACCOUNT C
+      }
+    ]
   }
 }
